@@ -11,12 +11,12 @@ import auth # Import auth for dependency
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 
-app.include_router(firearm.router)
-app.include_router(cartridge.router)
-app.include_router(war.router)
-app.include_router(auth_router.router) 
-app.include_router(manufacturer.router)
-app.include_router(type.router)
+app.include_router(firearm.router, prefix="/api/v1")
+app.include_router(cartridge.router, prefix="/api/v1")
+app.include_router(war.router, prefix="/api/v1")
+app.include_router(auth_router.router, prefix="/api/v1") 
+app.include_router(manufacturer.router, prefix="/api/v1")
+app.include_router(type.router, prefix="/api/v1")
 
 app.add_middleware(
     CORSMiddleware,
