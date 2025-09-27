@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request, HTTPException
-import schemas, models
+from app import schemas, models
 from typing import List
 from sqlalchemy.orm import Session, joinedload
-from database import get_db
+from app.database import get_db
 from fastapi import Depends
 router = APIRouter(prefix="/war", tags=["war"])
 

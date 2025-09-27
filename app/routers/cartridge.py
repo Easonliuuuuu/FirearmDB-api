@@ -1,17 +1,14 @@
 from fastapi import APIRouter, Request
-import schemas, models
+from app import schemas, models
 from typing import List
 from sqlalchemy.orm import Session, joinedload
-from database import get_db
+from app.database import get_db
 from fastapi import Depends
-from slowapi import Limiter
-from slowapi.util import get_remote_address
+
 from fastapi import HTTPException
 router = APIRouter(prefix="/cartridge", tags=["cartridge"])
-limiter = Limiter(key_func=get_remote_address)
 
 @router.get("/", response_model=List[schemas.cartridge])
-@limiter.limit("5/minute") # Apply the rate limit
 def get_cartridges(request: Request, db: Session = Depends(get_db)):
     return db.query(models.Cartridge).all()
 
@@ -54,22 +51,4 @@ def get_firearms_for_cartridge(request: Request, cartridge_id: int, db: Session 
     return db_cartridge.firearms
 
 
-
-
-@router.get("/{cartridge_id}/firearms/names", response_model=List[schemas.NameWithCartridge])
-#@limiter.limit("10/minute")
-def get_firearms_for_cartridge(request: Request, cartridge_id: int, db: Session = Depends(get_db)):
-    """
-    Get a list of all firearms that are chambered for a specific cartridge.
-    """
-    # Use options(joinedload(...)) to perform an eager load of the firearms
-    db_cartridge = db.query(models.Cartridge).options(
-        joinedload(models.Cartridge.firearms)
-    ).filter(models.Cartridge.cartridge_id == cartridge_id).first()
-
-    if db_cartridge is None:
-        raise HTTPException(status_code=404, detail="Cartridge not found")
-    
-    # The firearms are now pre-loaded with the cartridge data.
-    return db_cartridge.firearms
 

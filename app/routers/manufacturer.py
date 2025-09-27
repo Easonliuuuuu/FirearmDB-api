@@ -1,17 +1,15 @@
 from fastapi import APIRouter, Request
-import schemas, models
+from app import schemas, models
 from typing import List
 from sqlalchemy.orm import Session, joinedload
-from database import get_db
+from app.database import get_db
 from fastapi import Depends
-from slowapi import Limiter
-from slowapi.util import get_remote_address
+
 from fastapi import HTTPException
 router = APIRouter(prefix="/manufacturer", tags=["manufacturer"])
-limiter = Limiter(key_func=get_remote_address)
+
 
 @router.get("/", response_model=List[schemas.manufacturer])
-#@limiter.limit("5/minute") # Apply the rate limit
 def get_manufacturers(request: Request, db: Session = Depends(get_db)):
     return db.query(models.Manufacturer).all()
 

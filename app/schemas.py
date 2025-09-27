@@ -1,9 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List
 
-#class userCreate(BaseModel):
-    #email: str
-    #password: str
 
 class War(BaseModel):
     war_id: int

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, Table, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from database import Base # Assuming your DB connection setup is in database.py
+from app.database import Base # Assuming your DB connection setup is in database.py
 from pydantic import BaseModel
 from typing import Optional, List
 # --- Junction Tables (Association Tables) ---
