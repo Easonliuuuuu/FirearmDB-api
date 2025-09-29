@@ -5,8 +5,6 @@ from app.database import get_db
 from typing import List
 
 from app.limiter import limiter
-# Make sure you are importing the function itself
-#from app.auth import rate_limit_dependency
 from app.auth import get_rate_limit, is_user_exempt
 
 router = APIRouter(prefix="/firearm", tags=["firearm"])

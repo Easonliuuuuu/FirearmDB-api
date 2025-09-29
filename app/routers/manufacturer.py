@@ -4,12 +4,14 @@ from typing import List
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from fastapi import Depends
-
+from app.limiter import limiter
+from app.auth import get_rate_limit
 from fastapi import HTTPException
 router = APIRouter(prefix="/manufacturer", tags=["manufacturer"])
 
 
 @router.get("/", response_model=List[schemas.manufacturer])
+@limiter.limit(get_rate_limit)
 def get_manufacturers(request: Request, db: Session = Depends(get_db)):
     return db.query(models.Manufacturer).all()
 
@@ -34,12 +36,11 @@ def get_manufacturer(manufacturer_id: int, db: Session = Depends(get_db)):
     return manufacturer
 
 @router.get("/{manufacturer_id}/firearms", response_model=List[schemas.Firearm])
-#@limiter.limit("10/minute")
+
 def get_firearms_for_manufacturer(request: Request, manufacturer_id: int, db: Session = Depends(get_db)):
     """
     Get a list of all firearms produced by a specific manufacturer.
     """
-    # Use options(joinedload(...)) to perform an eager load of the firearms
     db_manufacturer = db.query(models.Manufacturer).options(
         joinedload(models.Manufacturer.firearms)
     ).filter(models.Manufacturer.manufacturer_id == manufacturer_id).first()
@@ -47,16 +48,13 @@ def get_firearms_for_manufacturer(request: Request, manufacturer_id: int, db: Se
     if db_manufacturer is None:
         raise HTTPException(status_code=404, detail="Manufacturer not found")
     
-    # The firearms are now pre-loaded with the manufacturer data.
     return db_manufacturer.firearms
 
 @router.get("/{manufacturer_id}/firearms/names", response_model=List[schemas.NameWithManufacturer])
-#@limiter.limit("10/minute")
 def get_firearm_names_for_manufacturer(request: Request, manufacturer_id: int, db: Session = Depends(get_db)):
     """
     Get a list of firearm IDs and names produced by a specific manufacturer.
     """
-    # Eagerly load the related firearms
     db_manufacturer = db.query(models.Manufacturer).options(
         joinedload(models.Manufacturer.firearms)
     ).filter(models.Manufacturer.manufacturer_id == manufacturer_id).first()

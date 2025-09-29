@@ -8,7 +8,7 @@ from slowapi.util import get_remote_address
 from app import models, schemas
 from app.config import settings
 from app.database import get_db
-from app.context import _request_ctx_var # Import from the new context file
+from app.context import _request_ctx_var 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -87,7 +87,4 @@ def is_user_exempt(request: Request) -> bool:
     """
     Returns True if the user is exempt from rate limiting, False otherwise.
     """
-    # Add your exemption logic here. For example, you could check if the
-    # user has a specific role or is in a whitelist.
-    # For now, we'll just return False so no one is exempt.
     return False
