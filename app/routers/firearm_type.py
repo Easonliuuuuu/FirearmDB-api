@@ -9,12 +9,12 @@ from app.auth import get_rate_limit
 from fastapi import HTTPException
 router = APIRouter(prefix="/type", tags=["type"])
 
-@router.get("/", response_model=List[schemas.type])
+@router.get("/", response_model=List[schemas.Type])
 @limiter.limit(get_rate_limit)
 def get_types(request: Request, db: Session = Depends(get_db)):
     return db.query(models.Type).all()
 
-@router.get("/search", response_model=List[schemas.type])
+@router.get("/search", response_model=List[schemas.Type])
 def search_types(name: str, db: Session = Depends(get_db)):
     """
     Search for types by name (case-insensitive, partial match).
@@ -27,7 +27,7 @@ def search_types(name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No types found matching the search criteria")
     return result
 
-@router.get("/{type_id}", response_model=schemas.type)
+@router.get("/{type_id}", response_model=schemas.Type)
 def get_type(type_id: int, db: Session = Depends(get_db)):
     type_instance = db.query(models.Type).filter(models.Type.type_id == type_id).first()
     if not type_instance:

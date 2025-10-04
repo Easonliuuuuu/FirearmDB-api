@@ -10,12 +10,12 @@ from fastapi import HTTPException
 router = APIRouter(prefix="/manufacturer", tags=["manufacturer"])
 
 
-@router.get("/", response_model=List[schemas.manufacturer])
+@router.get("/", response_model=List[schemas.Manufacturer])
 @limiter.limit(get_rate_limit)
 def get_manufacturers(request: Request, db: Session = Depends(get_db)):
     return db.query(models.Manufacturer).all()
 
-@router.get("/search", response_model=List[schemas.manufacturer])
+@router.get("/search", response_model=List[schemas.Manufacturer])
 def search_manufacturers(name: str, db: Session = Depends(get_db)):
     """
     Search for manufacturers by name (case-insensitive, partial match).
@@ -28,7 +28,7 @@ def search_manufacturers(name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No manufacturers found matching the search criteria")
     return result
 
-@router.get("/{manufacturer_id}", response_model=schemas.manufacturer)
+@router.get("/{manufacturer_id}", response_model=schemas.Manufacturer)
 def get_manufacturer(manufacturer_id: int, db: Session = Depends(get_db)):
     manufacturer = db.query(models.Manufacturer).filter(models.Manufacturer.manufacturer_id == manufacturer_id).first()
     if not manufacturer:
@@ -50,7 +50,7 @@ def get_firearms_for_manufacturer(request: Request, manufacturer_id: int, db: Se
     
     return db_manufacturer.firearms
 
-@router.get("/{manufacturer_id}/firearms/names", response_model=List[schemas.NameWithManufacturer])
+@router.get("/{manufacturer_id}/firearms/names", response_model=List[schemas.FirearmName])
 def get_firearm_names_for_manufacturer(request: Request, manufacturer_id: int, db: Session = Depends(get_db)):
     """
     Get a list of firearm IDs and names produced by a specific manufacturer.

@@ -10,7 +10,7 @@ router = APIRouter(prefix="/war", tags=["war"])
 
 @router.get("/", response_model=List[schemas.War])
 @limiter.limit(get_rate_limit)
-def get_firearms(db: Session = Depends(get_db)):
+def get_wars(request: Request, db: Session = Depends(get_db)):
     return db.query(models.War).all()
 
 @router.get("/search/", response_model=List[schemas.War])

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.routers import firearm, cartridge, war, manufacturer, type
+from app.routers import firearm, cartridge, firearm_type, war, manufacturer
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -47,7 +47,7 @@ app.include_router(cartridge.router, prefix="/api/v1")
 app.include_router(war.router, prefix="/api/v1")
 app.include_router(auth_router.router, prefix="/api/v1") 
 app.include_router(manufacturer.router, prefix="/api/v1")
-app.include_router(type.router, prefix="/api/v1")
+app.include_router(firearm_type.router, prefix="/api/v1")
 
 app.add_middleware(
     CORSMiddleware,

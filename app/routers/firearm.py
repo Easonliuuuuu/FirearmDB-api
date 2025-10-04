@@ -14,18 +14,8 @@ router = APIRouter(prefix="/firearm", tags=["firearm"])
 def get_firearms(request: Request, db: Session = Depends(get_db)):
     return db.query(models.Firearm).all()
 
-@router.get("/{firearm_id}", response_model=schemas.Firearm)
-def get_firearm(firearm_id: int, request: Request, db: Session = Depends(get_db)):
-    """
-    Get a specific firearm by its ID.
-    """
-    db_firearm = db.query(models.Firearm).filter(models.Firearm.firearm_id == firearm_id).first()
-    if db_firearm is None:
-        raise HTTPException(status_code=404, detail="Firearm not found")
-    return db_firearm
-
 @router.get("/search", response_model=List[schemas.Firearm])
-def search_firearms(name: str, request: Request, db: Session = Depends(get_db)):
+def search_firearms(name: str, db: Session = Depends(get_db)):
     """
     Search for firearms by name (case-insensitive, partial match).
     """
@@ -36,6 +26,18 @@ def search_firearms(name: str, request: Request, db: Session = Depends(get_db)):
     if not result:
         raise HTTPException(status_code=404, detail="No firearms found matching the search criteria")
     return result
+
+@router.get("/{firearm_id}", response_model=schemas.Firearm)
+def get_firearm(firearm_id: int, request: Request, db: Session = Depends(get_db)):
+    """
+    Get a specific firearm by its ID.
+    """
+    db_firearm = db.query(models.Firearm).filter(models.Firearm.firearm_id == firearm_id).first()
+    if db_firearm is None:
+        raise HTTPException(status_code=404, detail="Firearm not found")
+    return db_firearm
+
+
 
 @router.get("/{firearm_id}/wars", response_model=List[schemas.War])
 def get_wars_for_firearm(firearm_id: int, request: Request, db: Session = Depends(get_db)):
@@ -51,7 +53,7 @@ def get_wars_for_firearm(firearm_id: int, request: Request, db: Session = Depend
     
     return db_firearm.wars
 
-@router.get("/{firearm_id}/cartridges", response_model=List[schemas.cartridge])
+@router.get("/{firearm_id}/cartridges", response_model=List[schemas.Cartridge])
 def get_cartridges_for_firearm(firearm_id: int, request: Request, db: Session = Depends(get_db)):
     """
     Get a list of all cartridges a specific firearm is chambered for.
@@ -65,7 +67,7 @@ def get_cartridges_for_firearm(firearm_id: int, request: Request, db: Session = 
     
     return db_firearm.cartridges
 
-@router.get("/{firearm_id}/manufacturers", response_model=List[schemas.manufacturer])
+@router.get("/{firearm_id}/manufacturers", response_model=List[schemas.Manufacturer])
 def get_manufacturers_for_firearm(firearm_id: int, request: Request, db: Session = Depends(get_db)):
     """
     Get a list of all manufacturers for a specific firearm.

@@ -9,12 +9,12 @@ from app.auth import get_rate_limit
 from fastapi import HTTPException
 router = APIRouter(prefix="/cartridge", tags=["cartridge"])
 
-@router.get("/", response_model=List[schemas.cartridge])
+@router.get("/", response_model=List[schemas.Cartridge])
 @limiter.limit(get_rate_limit)
 def get_cartridges(request: Request, db: Session = Depends(get_db)):
     return db.query(models.Cartridge).all()
 
-@router.get("/search", response_model=List[schemas.cartridge])
+@router.get("/search", response_model=List[schemas.Cartridge])
 def search_cartridges(name: str, db: Session = Depends(get_db)):
     """
     Search for cartridges by name (case-insensitive, partial match).
@@ -27,7 +27,7 @@ def search_cartridges(name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No cartridges found matching the search criteria")
     return result
 
-@router.get("/{cartridge_id}", response_model=schemas.cartridge)
+@router.get("/{cartridge_id}", response_model=schemas.Cartridge)
 def get_cartridge(cartridge_id: int, db: Session = Depends(get_db)):
     cartridge = db.query(models.Cartridge).filter(models.Cartridge.cartridge_id == cartridge_id).first()
     if not cartridge:
@@ -51,7 +51,7 @@ def get_firearms_for_cartridge(request: Request, cartridge_id: int, db: Session 
     
     return db_cartridge.firearms
 
-@router.get("/{cartridge_id}/firearms/names", response_model=List[schemas.NameWithManufacturer])
+@router.get("/{cartridge_id}/firearms/names", response_model=List[schemas.NameWithCartridge])
 def get_firearm_names_for_cartridge(request: Request, cartridge_id: int, db: Session = Depends(get_db)):
     """
     Get a list of firearm IDs and names that are chambered for a specific cartridge.
@@ -65,10 +65,10 @@ def get_firearm_names_for_cartridge(request: Request, cartridge_id: int, db: Ses
     
     return [
         schemas.NameWithManufacturer(
-            firearm_id=firearm.firearm_id,
+            firearm_id=firearm.firearm_id, 
             name=firearm.name,
             manufacturer=firearm.manufacturer.name if firearm.manufacturer else None
-        )
+        ) 
         for firearm in db_cartridge.firearms
     ]
 

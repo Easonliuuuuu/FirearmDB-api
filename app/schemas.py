@@ -1,17 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 
 
 class War(BaseModel):
     war_id: int
     name: str
-    
-    class Config:
-        from_attributes = True
-    
-class cartridge(BaseModel):
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Cartridge(BaseModel):
     cartridge_id: int
     name: str
+
 
 class Firearm(BaseModel):
     firearm_id: int
@@ -20,76 +21,75 @@ class Firearm(BaseModel):
     designed: Optional[str] = None
     produced: Optional[str] = None
     action: Optional[str] = None
-    #source_url: Optional[str] = None
-    #image_url: Optional[str] = None
+    # source_url: Optional[str] = None
+    # image_url: Optional[str] = None
     wars: List[War] = []
-    cartridges: List[cartridge] = []
+    cartridges: List[Cartridge] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
-class manufacturer(BaseModel):
+
+class Manufacturer(BaseModel):
     manufacturer_id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class NameWithManufacturer(BaseModel):
     firearm_id: int
     name: str
 
-    class Config:
-        from_attributes = True
-        
+    model_config = ConfigDict(from_attributes=True)
+
 
 class NameWithCartridge(BaseModel):
     firearm_id: int
     name: str
 
-    class Config:
-        from_attributes = True
-    
+    model_config = ConfigDict(from_attributes=True)
+
+
 class NameWithType(BaseModel):
     firearm_id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class FirearmName(BaseModel):
     firearm_id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
-class type(BaseModel):
+
+class Type(BaseModel):
     type_id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
-    
 class UserBase(BaseModel):
     email: str
+
 
 class UserCreate(UserBase):
     password: str
 
+
 class User(UserBase):
     id: int
-    #is_active: bool
+    # is_active: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
     email: Optional[str] = None
-
