@@ -47,6 +47,7 @@ Resources:
 
       Environment:
         Variables:
+          API_GATEWAY_STAGE: !Sub '${ServerlessRestApi}.Stage'
           DB_SERVER: "firearm.cfymios4y265.ap-northeast-3.rds.amazonaws.com"
           DB_NAME: "postgres"
           DB_USER: "postgres"
