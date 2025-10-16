@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  firearm-api
+  A serverless FastAPI application for the FirearmDB.
+
+# Add a Parameters section to define your VPC configuration
+Parameters:
+  VpcSecurityGroupIds:
+    Type: CommaDelimitedList
+    Description: "Security Group IDs for the Lambda function (e.g., sg-xxxxxxxx)"
+  VpcSubnetIds:
+    Type: CommaDelimitedList
+    Description: "Subnet IDs for the Lambda function (e.g., subnet-xxxxxxxx,subnet-yyyyyyyy)"
+
+Globals:
+  Function:
+    Timeout: 30
+
+Resources:
+  FirearmApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        RootApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+        ProxyApi:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            
+      VpcConfig:
+        # Use the parameters defined above
+        SecurityGroupIds: !Ref VpcSecurityGroupIds
+        SubnetIds: !Ref VpcSubnetIds
+
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - SecretsManagerReadWrite
+
+      Environment:
+        Variables:
+          DB_SERVER: "firearm.cfymios4y265.ap-northeast-3.rds.amazonaws.com"
+          DB_NAME: "postgres"
+          DB_USER: "postgres"
+          DB_PORT: "5432"
+          DB_PASSWORD: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:rds!db-fa2781de-81a7-40ba-aaa8-703270306399-EardwP:SecretString:password}}"
+          SECRET_KEY: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/secret-key-4HbG4r:SecretString:SECRET_KEY}}"
+    Metadata:
+      DockerTag: dev
+      DockerContext: ./
+      Dockerfile: Dockerfile

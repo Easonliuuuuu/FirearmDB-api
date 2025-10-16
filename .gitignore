@@ -1,3 +1,24 @@
-__pycache__
+__pycache__/
 venv/
+*.pyc
+
+#environment variables
 .env
+
+#testing database
+test.db
+
+# AWS SAM
+.aws-sam/
+samconfig.toml
+
+# Testing
+.coverage
+.pytest_cache/
+
+# IDE & Editor specific
+.vscode/
+.idea/
+
+# macOS
+.DS_Store

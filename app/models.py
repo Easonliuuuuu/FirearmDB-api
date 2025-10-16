@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, Table, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from app.database import Base # Assuming your DB connection setup is in database.py
+from app.database import Base 
 from pydantic import BaseModel
 from typing import Optional, List
 # --- Junction Tables (Association Tables) ---
@@ -44,8 +44,7 @@ class Firearm(Base):
     designed = Column(String(255))
     produced = Column(Text)
     action = Column(Text)
-    source_url = Column(Text)
-    image_url = Column(Text)
+    
 
     # Many-to-Many relationships defined using the junction tables
     types = relationship("Type", secondary=firearm_types, back_populates="firearms")

@@ -8,9 +8,10 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.routers import firearm, cartridge, war, auth as auth_router 
-from app.auth import dynamic_key_func, try_get_current_user
+from app.auth import try_get_current_user
 from app.limiter import limiter
 from app.context import _request_ctx_var 
+from mangum import Mangum
 
 
 app = FastAPI()
@@ -60,5 +61,7 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+handler = Mangum(app)
 
 

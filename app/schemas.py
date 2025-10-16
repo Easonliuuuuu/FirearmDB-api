@@ -21,8 +21,6 @@ class Firearm(BaseModel):
     designed: Optional[str] = None
     produced: Optional[str] = None
     action: Optional[str] = None
-    # source_url: Optional[str] = None
-    # image_url: Optional[str] = None
     wars: List[War] = []
     cartridges: List[Cartridge] = []
 
