@@ -4,20 +4,24 @@ Description: >
   firearm-api
   A serverless FastAPI application for the FirearmDB.
 
-# Add a Parameters section to define your VPC configuration
 Parameters:
   VpcSecurityGroupIds:
     Type: CommaDelimitedList
-    Description: "Security Group IDs for the Lambda function (e.g., sg-xxxxxxxx)"
+    Description: "Security Group IDs for the Lambda function"
   VpcSubnetIds:
     Type: CommaDelimitedList
-    Description: "Subnet IDs for the Lambda function (e.g., subnet-xxxxxxxx,subnet-yyyyyyyy)"
+    Description: "Subnet IDs for the Lambda function"
 
 Globals:
   Function:
     Timeout: 30
 
 Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+
   FirearmApiFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -25,19 +29,14 @@ Resources:
       Architectures:
         - x86_64
       Events:
-        RootApi:
-          Type: Api
-          Properties:
-            Path: /
-            Method: ANY
-        ProxyApi:
+        ApiEvent:
           Type: Api
           Properties:
             Path: /{proxy+}
             Method: ANY
+            RestApiId: !Ref ApiGateway
             
       VpcConfig:
-        # Use the parameters defined above
         SecurityGroupIds: !Ref VpcSecurityGroupIds
         SubnetIds: !Ref VpcSubnetIds
 
@@ -47,7 +46,6 @@ Resources:
 
       Environment:
         Variables:
-          API_GATEWAY_STAGE: !Sub '${ServerlessRestApi}.Stage'
           DB_SERVER: "firearm.cfymios4y265.ap-northeast-3.rds.amazonaws.com"
           DB_NAME: "postgres"
           DB_USER: "postgres"
