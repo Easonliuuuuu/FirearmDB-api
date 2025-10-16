@@ -15,7 +15,7 @@ from app.context import _request_ctx_var
 from mangum import Mangum
 
 
-app = FastAPI(root_path="/Prod")
+app = FastAPI()
 
 @app.middleware("http")
 async def request_context_middleware(request: Request, call_next):
