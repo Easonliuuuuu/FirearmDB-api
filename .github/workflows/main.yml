@@ -26,7 +26,6 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
 
-
     - name: Run Pytest
       env:
         DB_SERVER: "localhost"
@@ -48,23 +47,18 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REPOSITORY: firearm-api-repo # Make sure this matches your ECR repo name
-        IMAGE_TAG: ${{ github.sha }}
+    - name: Build and Deploy with SAM
       run: |
-        docker build -t ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "image=${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        # This command builds the Docker image and prepares the deployment artifacts
+        sam build --use-container
 
-    - name: Deploy to AWS Lambda with SAM
-      run: |
+        # Set your VPC configuration
         VPC_SUBNET_IDS="subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528"
         VPC_SECURITY_GROUP_ID="sg-002293484aef9c5f7"
-
+        
+        # This command now pushes the built image to ECR and deploys
         sam deploy --stack-name firearm-api-prod \
-                   --image-repository ${{ steps.build-image.outputs.image }} \
+                   --image-repository ${{ steps.login-ecr.outputs.registry }}/firearm-api-repo \
                    --no-confirm-changeset \
                    --no-fail-on-empty-changeset \
                    --capabilities CAPABILITY_IAM \
