@@ -46,10 +46,10 @@ Resources:
 
       Environment:
         Variables:
-          DB_SERVER: "firearm.cfymios4y265.ap-northeast-3.rds.amazonaws.com"
-          DB_NAME: "postgres"
-          DB_USER: "postgres"
-          DB_PORT: "5432"
+          DB_SERVER: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_SERVER}}"
+          DB_NAME: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_NAME}}"
+          DB_USER: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_USER}}"
+          DB_PORT: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_PORT}}"
           DB_PASSWORD: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:rds!db-fa2781de-81a7-40ba-aaa8-703270306399-EardwP:SecretString:password}}"
           SECRET_KEY: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/secret-key-4HbG4r:SecretString:SECRET_KEY}}"
     Metadata:
