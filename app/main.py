@@ -1,5 +1,5 @@
-import os
 from __future__ import annotations
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, Depends
 from sqlalchemy.orm import Session
