@@ -3,15 +3,11 @@ from app import schemas, models
 from typing import List
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from fastapi import Depends
-from app.limiter import limiter
-from app.auth import get_rate_limit
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 router = APIRouter(prefix="/type", tags=["type"])
 
 @router.get("/", response_model=List[schemas.Type])
-@limiter.limit(get_rate_limit)
-def get_types(request: Request, db: Session = Depends(get_db)):
+def get_types(db: Session = Depends(get_db)):
     return db.query(models.Type).all()
 
 @router.get("/search", response_model=List[schemas.Type])

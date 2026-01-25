@@ -4,14 +4,10 @@ from app import schemas, models
 from app.database import get_db
 from typing import List
 
-from app.limiter import limiter
-from app.auth import get_rate_limit, is_user_exempt
-
 router = APIRouter(prefix="/firearm", tags=["firearm"])
 
 @router.get("/", response_model=List[schemas.Firearm])
-@limiter.limit(get_rate_limit)
-def get_firearms(request: Request, db: Session = Depends(get_db)):
+def get_firearms(db: Session = Depends(get_db)):
     return db.query(models.Firearm).all()
 
 @router.get("/search", response_model=List[schemas.Firearm])

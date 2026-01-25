@@ -3,15 +3,11 @@ from app import schemas, models
 from typing import List
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from fastapi import Depends
-from app.limiter import limiter
-from app.auth import get_rate_limit
-from fastapi import HTTPException
+from fastapi import Depends, HTTPException
 router = APIRouter(prefix="/cartridge", tags=["cartridge"])
 
 @router.get("/", response_model=List[schemas.Cartridge])
-@limiter.limit(get_rate_limit)
-def get_cartridges(request: Request, db: Session = Depends(get_db)):
+def get_cartridges(db: Session = Depends(get_db)):
     return db.query(models.Cartridge).all()
 
 @router.get("/search", response_model=List[schemas.Cartridge])
@@ -36,8 +32,7 @@ def get_cartridge(cartridge_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{cartridge_id}/firearms", response_model=List[schemas.Firearm])
-#@limiter.limit("10/minute")
-def get_firearms_for_cartridge(request: Request, cartridge_id: int, db: Session = Depends(get_db)):
+def get_firearms_for_cartridge(cartridge_id: int, db: Session = Depends(get_db)):
     """
     Get a list of all firearms that are chambered for a specific cartridge.
     """
