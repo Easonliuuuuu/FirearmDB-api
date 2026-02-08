@@ -50,7 +50,8 @@ Resources:
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: !Ref ApiStageName
+      # Use Sub to avoid SAM/CFN interpreting StageName as a resource dependency
+      StageName: !Sub "${ApiStageName}"
       MethodSettings: []
 
   # Usage plan for anonymous users (lower limits)
@@ -61,7 +62,7 @@ Resources:
       Description: "Usage plan for anonymous users with lower rate limits"
       ApiStages:
         - ApiId: !Ref ApiGateway
-          Stage: !Ref ApiStageName
+          Stage: !Ref ApiGateway.Stage
           Throttle:
             "/api/v1/token/POST":
               BurstLimit: 5
@@ -73,17 +74,16 @@ Resources:
         BurstLimit: 20
         RateLimit: 10
 
-  # API Key for authenticated users
+  # API Key for authenticated users (StageName from generated Stage ref)
   ApiKey:
     Type: AWS::ApiGateway::ApiKey
-    DependsOn: ApiGatewayStage
     Properties:
       Name: !Sub "${AWS::StackName}-ApiKey"
       Description: "API Key for authenticated users"
       Enabled: true
       StageKeys:
         - RestApiId: !Ref ApiGateway
-          StageName: !Ref ApiStageName
+          StageName: !Ref ApiGateway.Stage
 
   # Usage plan for authenticated users (higher limits)
   AuthenticatedUsagePlan:
@@ -93,7 +93,7 @@ Resources:
       Description: "Usage plan for API key holders with higher rate limits"
       ApiStages:
         - ApiId: !Ref ApiGateway
-          Stage: !Ref ApiStageName
+          Stage: !Ref ApiGateway.Stage
       Throttle:
         BurstLimit: 200
         RateLimit: 100
