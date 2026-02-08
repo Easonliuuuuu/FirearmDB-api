@@ -47,6 +47,9 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: Set up SAM CLI
+      uses: aws-actions/setup-sam@v2
+
     - name: Build and Deploy with SAM
       run: |
         # This command builds the Docker image and prepares the deployment artifacts
