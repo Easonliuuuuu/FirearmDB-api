@@ -11,19 +11,12 @@ capabilities = "CAPABILITY_IAM"
 parameter_overrides = [
     "StageName=Dev",
     "VpcSecurityGroupIds=sg-002293484aef9c5f7",
-    "VpcSubnetIds=subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528",
-    "DbHost={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_SERVER}}",
-    "DbName={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_NAME}}",
-    "DbUser={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_USER}}",
-    "DbPort={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_PORT}}",
-    "DbPassword={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:rds!db-fa2781de-81a7-40ba-aaa8-703270306399-EardwP:SecretString:password}}",
-    "SecretKey={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/secret-key-4HbG4r:SecretString:SECRET_KEY}}"
+    "VpcSubnetIds=subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528"
 ]
 
 [prod.deploy.parameters]
 stack_name = "firearm-api-prod"
 resolve_s3 = true
-resolve_image_repos = true
 s3_prefix = "firearm-api-prod"
 region = "ap-northeast-3"
 confirm_changeset = true
@@ -31,12 +24,6 @@ capabilities = "CAPABILITY_IAM"
 parameter_overrides = [
     "StageName=Prod",
     "VpcSecurityGroupIds=sg-002293484aef9c5f7",
-    "VpcSubnetIds=subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528",
-    "DbHost={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_SERVER}}",
-    "DbName={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_NAME}}",
-    "DbUser={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_USER}}",
-    "DbPort={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_PORT}}",
-    "DbPassword={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:rds!db-fa2781de-81a7-40ba-aaa8-703270306399-EardwP:SecretString:password}}",
-    "SecretKey={{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/secret-key-4HbG4r:SecretString:SECRET_KEY}}"
+    "VpcSubnetIds=subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528"
 ]
 
