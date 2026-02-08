@@ -11,7 +11,7 @@ test.db
 
 # AWS SAM
 .aws-sam/
-samconfig.toml
+
 
 # Utility and Test scripts
 test.py
