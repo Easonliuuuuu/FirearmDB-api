@@ -5,7 +5,15 @@ Description: >
   A serverless FastAPI application for the FirearmDB.
   # Force update 2026-01-26 to refresh environment variables after secret rotation
 
-Parameters:
+  DbCredentialsSecretArn:
+    Type: String
+    Description: "ARN of the secret containing DB credentials (DB_SERVER, DB_NAME, DB_USER, DB_PORT)"
+  DbPasswordSecretArn:
+    Type: String
+    Description: "ARN of the secret containing the DB password"
+  AppKeySecretArn:
+    Type: String
+    Description: "ARN of the secret containing the application SECRET_KEY"
   VpcSecurityGroupIds:
     Type: CommaDelimitedList
     Description: "Security Group IDs for the Lambda function"
@@ -118,12 +126,12 @@ Resources:
 
       Environment:
         Variables:
-          DB_SERVER: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_SERVER}}"
-          DB_NAME: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_NAME}}"
-          DB_USER: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_USER}}"
-          DB_PORT: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_PORT}}"
-          DB_PASSWORD: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:rds!db-fa2781de-81a7-40ba-aaa8-703270306399-EardwP:SecretString:password}}"
-          SECRET_KEY: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/secret-key-4HbG4r:SecretString:SECRET_KEY}}"
+          DB_SERVER: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_SERVER}}"
+          DB_NAME: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_NAME}}"
+          DB_USER: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_USER}}"
+          DB_PORT: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_PORT}}"
+          DB_PASSWORD: !Sub "{{resolve:secretsmanager:${DbPasswordSecretArn}:SecretString:password}}"
+          SECRET_KEY: !Sub "{{resolve:secretsmanager:${AppKeySecretArn}:SecretString:SECRET_KEY}}"
     Metadata:
       DockerTag: dev
       DockerContext: ./

@@ -4,7 +4,9 @@ def test_get_wars_empty(client):
     """
     response = client.get("/api/v1/war/")
     assert response.status_code == 200
-    assert response.json() == []
+    data = response.json()
+    assert data["items"] == []
+    assert data["total"] == 0
 
 def test_get_war_not_found(client):
     """
