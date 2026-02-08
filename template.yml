@@ -6,31 +6,27 @@ Description: >
   # Force update 2026-01-26 to refresh environment variables after secret rotation
 
 Parameters:
-  # Use secret names (not full ARNs) so references survive secret rotation; suffix in ARNs changes on rotation.
+  # Passed at deploy time from CI (fetched from Secrets Manager) to avoid ResourceExistenceCheck at changeset creation.
   DbHost:
     Type: String
     Description: "Database Host"
-    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_SERVER}}"
   DbName:
     Type: String
     Description: "Database Name"
-    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_NAME}}"
   DbUser:
     Type: String
     Description: "Database User"
-    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_USER}}"
   DbPort:
     Type: String
     Description: "Database Port"
-    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_PORT}}"
   DbPassword:
     Type: String
     Description: "Database Password"
-    Default: "{{resolve:secretsmanager:rds!db-fa2781de-81a7-40ba-aaa8-703270306399:SecretString:password}}"
+    NoEcho: true
   SecretKey:
     Type: String
     Description: "Application Secret Key"
-    Default: "{{resolve:secretsmanager:prod/firearm-api/secret-key:SecretString:SECRET_KEY}}"
+    NoEcho: true
   VpcSecurityGroupIds:
     Type: CommaDelimitedList
     Description: "Security Group IDs for the Lambda function"

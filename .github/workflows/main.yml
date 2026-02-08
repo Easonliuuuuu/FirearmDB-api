@@ -52,29 +52,40 @@ jobs:
 
     - name: Build and Deploy with SAM
       id: deploy
+      env:
+        AWS_REGION: ap-northeast-3
+        # CLI --parameter-overrides replace samconfig, so we pass all params (secrets fetched below)
+        VPC_SG: sg-002293484aef9c5f7
+        VPC_SUBNETS: "subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528"
       run: |
-        # This command builds the Docker image and prepares the deployment artifacts
+        set -e
         sam build --use-container
 
-        # This command now pushes the built image to ECR and deploys using the 'prod' configuration from samconfig.toml
+        # Fetch secrets and pass as parameter overrides (avoids ResourceExistenceCheck on template defaults)
+        CREDS=$(aws secretsmanager get-secret-value --secret-id prod/firearm-api/credentials --region $AWS_REGION --query SecretString --output text)
+        export DB_HOST=$(echo "$CREDS" | jq -r .DB_SERVER)
+        export DB_NAME=$(echo "$CREDS" | jq -r .DB_NAME)
+        export DB_USER=$(echo "$CREDS" | jq -r .DB_USER)
+        export DB_PORT=$(echo "$CREDS" | jq -r .DB_PORT)
+        export DB_PASSWORD=$(aws secretsmanager get-secret-value --secret-id "rds!db-fa2781de-81a7-40ba-aaa8-703270306399" --region $AWS_REGION --query SecretString --output text | jq -r .password)
+        export SECRET_KEY=$(aws secretsmanager get-secret-value --secret-id prod/firearm-api/secret-key --region $AWS_REGION --query SecretString --output text | jq -r .SECRET_KEY)
+
         sam deploy --config-env prod \
                    --image-repository ${{ steps.login-ecr.outputs.registry }}/firearm-api-repo \
                    --no-confirm-changeset \
-                   --no-fail-on-empty-changeset
+                   --no-fail-on-empty-changeset \
+                   --parameter-overrides "ApiStageName=Prod" "VpcSecurityGroupIds=$VPC_SG" "VpcSubnetIds=$VPC_SUBNETS" "DbHost=$DB_HOST" "DbName=$DB_NAME" "DbUser=$DB_USER" "DbPort=$DB_PORT" "DbPassword=$DB_PASSWORD" "SecretKey=$SECRET_KEY"
 
     - name: Debug CloudFormation failure
       if: failure() && steps.deploy.outcome == 'failure'
       run: |
-        echo "=== Latest change set (newest by CreationTime) - StatusReason shows the failure ==="
+        echo "=== Latest change set - StatusReason ==="
         CS_ID=$(aws cloudformation list-change-sets --stack-name firearm-api-prod --region ap-northeast-3 --query "sort_by(Summaries, &CreationTime) | [-1].ChangeSetId" --output text 2>/dev/null) || true
+        CS_NAME=$(aws cloudformation list-change-sets --stack-name firearm-api-prod --region ap-northeast-3 --query "sort_by(Summaries, &CreationTime) | [-1].ChangeSetName" --output text 2>/dev/null) || true
         if [ -n "$CS_ID" ] && [ "$CS_ID" != "None" ]; then
-          echo "ChangeSetId: $CS_ID"
-          aws cloudformation describe-change-set --change-set-name "$CS_ID" --stack-name firearm-api-prod --region ap-northeast-3 --query "{Status:Status,StatusReason:StatusReason,ExecutionStatus:ExecutionStatus}" --output yaml 2>/dev/null || true
+          aws cloudformation describe-change-set --change-set-name "$CS_ID" --stack-name firearm-api-prod --region ap-northeast-3 --query "{Status:Status,StatusReason:StatusReason}" --output yaml 2>/dev/null || true
         fi
-        echo "=== Recent stack events (newest first) ==="
-        aws cloudformation describe-stack-events \
-          --stack-name firearm-api-prod \
-          --region ap-northeast-3 \
-          --max-items 10 \
-          --query "StackEvents[].[Timestamp,LogicalResourceId,ResourceStatus,ResourceStatusReason]" \
-          --output table 2>/dev/null || true
+        echo "=== DescribeEvents (VALIDATION_ERROR / failed resource details) ==="
+        if [ -n "$CS_NAME" ] && [ "$CS_NAME" != "None" ]; then
+          aws cloudformation describe-events --change-set-name "$CS_NAME" --region ap-northeast-3 --filters FailedEvents=true --query "OperationEvents[].[EventType,LogicalResourceId,ValidationName,ValidationStatusReason,ResourceStatusReason]" --output table 2>/dev/null || true
+        fi
