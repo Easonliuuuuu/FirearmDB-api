@@ -4,24 +4,60 @@ from typing import List
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from fastapi import Depends, HTTPException
-router = APIRouter(prefix="/cartridge", tags=["cartridge"])
+router = APIRouter(prefix="/cartridge", tags=["Cartridge"])
 
-@router.get("/", response_model=List[schemas.Cartridge])
-def get_cartridges(db: Session = Depends(get_db)):
-    return db.query(models.Cartridge).all()
+@router.get("/")
+def get_cartridges(
+    offset: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db)
+):
+    """Get all cartridges with pagination. Default limit=50, max limit=200."""
+    if limit > 200:
+        limit = 200
+    if offset < 0:
+        offset = 0
+    
+    total = db.query(models.Cartridge).count()
+    items = db.query(models.Cartridge).offset(offset).limit(limit).all()
+    
+    return {
+        "items": items,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "has_more": offset + limit < total
+    }
 
-@router.get("/search", response_model=List[schemas.Cartridge])
-def search_cartridges(name: str, db: Session = Depends(get_db)):
-    """
-    Search for cartridges by name (case-insensitive, partial match).
-    """
+@router.get("/search")
+def search_cartridges(
+    name: str,
+    offset: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db)
+):
+    """Search for cartridges by name with pagination."""
     if not name:
         raise HTTPException(status_code=400, detail="Name query parameter is required")
+    if limit > 200:
+        limit = 200
+    if offset < 0:
+        offset = 0
     
-    result = db.query(models.Cartridge).filter(models.Cartridge.name.ilike(f"%{name}%")).all()
-    if not result:
+    query = db.query(models.Cartridge).filter(models.Cartridge.name.ilike(f"%{name}%"))
+    total = query.count()
+    items = query.offset(offset).limit(limit).all()
+    
+    if total == 0:
         raise HTTPException(status_code=404, detail="No cartridges found matching the search criteria")
-    return result
+    
+    return {
+        "items": items,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "has_more": offset + limit < total
+    }
 
 @router.get("/{cartridge_id}", response_model=schemas.Cartridge)
 def get_cartridge(cartridge_id: int, db: Session = Depends(get_db)):

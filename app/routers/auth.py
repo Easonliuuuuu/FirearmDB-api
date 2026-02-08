@@ -31,3 +31,8 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
         data={"sub": user.email}
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/me", response_model=schemas.User)
+async def get_current_user_info(current_user: models.User = Depends(auth.get_current_user)):
+    """Returns the current authenticated user's information including role."""
+    return current_user

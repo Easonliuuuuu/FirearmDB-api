@@ -12,6 +12,10 @@ Parameters:
   VpcSubnetIds:
     Type: CommaDelimitedList
     Description: "Subnet IDs for the Lambda function"
+  StageName:
+    Type: String
+    Default: Prod
+    Description: "The name of the API Gateway Stage"
 
 Globals:
   Function:
@@ -21,7 +25,61 @@ Resources:
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
+      StageName: !Ref StageName
+      MethodSettings: []
+
+  # Usage plan for anonymous users (lower limits)
+  ApiUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: !Sub "${AWS::StackName}-AnonymousPlan"
+      Description: "Usage plan for anonymous users with lower rate limits"
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: !Ref StageName
+          Throttle:
+            "/api/v1/token/POST":
+              BurstLimit: 5
+              RateLimit: 2
+            "/api/v1/register/POST":
+              BurstLimit: 5
+              RateLimit: 2
+      Throttle:
+        BurstLimit: 20
+        RateLimit: 10
+
+  # API Key for authenticated users
+  ApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    DependsOn: ApiGatewayStage
+    Properties:
+      Name: !Sub "${AWS::StackName}-ApiKey"
+      Description: "API Key for authenticated users"
+      Enabled: true
+      StageKeys:
+        - RestApiId: !Ref ApiGateway
+          StageName: !Ref StageName
+
+  # Usage plan for authenticated users (higher limits)
+  AuthenticatedUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: !Sub "${AWS::StackName}-AuthenticatedPlan"
+      Description: "Usage plan for API key holders with higher rate limits"
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: !Ref StageName
+      Throttle:
+        BurstLimit: 200
+        RateLimit: 100
+
+  # Associate API Key with authenticated usage plan
+  ApiKeyUsagePlanAssociation:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref AuthenticatedUsagePlan
 
   FirearmApiFunction:
     Type: AWS::Serverless::Function
@@ -36,6 +94,18 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
+            RestApiId: !Ref ApiGateway
+        AuthToken:
+          Type: Api
+          Properties:
+            Path: /api/v1/token
+            Method: POST
+            RestApiId: !Ref ApiGateway
+        AuthRegister:
+          Type: Api
+          Properties:
+            Path: /api/v1/register
+            Method: POST
             RestApiId: !Ref ApiGateway
             
       VpcConfig:

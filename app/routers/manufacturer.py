@@ -4,7 +4,7 @@ from typing import List
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from fastapi import Depends, HTTPException
-router = APIRouter(prefix="/manufacturer", tags=["manufacturer"])
+router = APIRouter(prefix="/manufacturer", tags=["Manufacturer"])
 
 
 @router.get("/", response_model=List[schemas.Manufacturer])

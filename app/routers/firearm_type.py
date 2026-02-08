@@ -4,7 +4,7 @@ from typing import List
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from fastapi import Depends, HTTPException
-router = APIRouter(prefix="/type", tags=["type"])
+router = APIRouter(prefix="/type", tags=["Firearm Type"])
 
 @router.get("/", response_model=List[schemas.Type])
 def get_types(db: Session = Depends(get_db)):

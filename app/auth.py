@@ -24,23 +24,30 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 
-async def try_get_current_user(request: Request, db: Session = Depends(get_db)) -> models.User | None:
-    """
-    Tries to get the current user from the token in the request headers.
-    Returns the user object if successful, otherwise returns None.
-    Does not raise an exception for invalid/missing credentials.
-    """
-    token = request.headers.get("Authorization")
-    if token:
-        try:
-            # Assuming the token is prefixed with "Bearer "
-            token = token.split(" ")[1]
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-            email: str = payload.get("sub")
-            if email:
-                return db.query(models.User).filter(models.User.email == email).first()
-        except (JWTError, IndexError):
-            # This handles cases where the token is invalid or not in the "Bearer <token>" format
-            return None
-    return None
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
+    user = db.query(models.User).filter(models.User.email == token_data.email).first()
+    if user is None:
+        raise credentials_exception
+    return user
+
+def get_current_admin_user(current_user: models.User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user does not have enough privileges"
+        )
+    return current_user
 
