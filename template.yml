@@ -5,6 +5,7 @@ Description: >
   A serverless FastAPI application for the FirearmDB.
   # Force update 2026-01-26 to refresh environment variables after secret rotation
 
+Parameters:
   DbCredentialsSecretArn:
     Type: String
     Description: "ARN of the secret containing DB credentials (DB_SERVER, DB_NAME, DB_USER, DB_PORT)"
