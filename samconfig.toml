@@ -9,7 +9,7 @@ region = "ap-northeast-3"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = [
-    "StageName=Dev",
+    "ApiStageName=Dev",
     "VpcSecurityGroupIds=sg-002293484aef9c5f7",
     "VpcSubnetIds=subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528"
 ]
@@ -22,7 +22,7 @@ region = "ap-northeast-3"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = [
-    "StageName=Prod",
+    "ApiStageName=Prod",
     "VpcSecurityGroupIds=sg-002293484aef9c5f7",
     "VpcSubnetIds=subnet-0c01c03a37771dbc2,subnet-07b0370ae1e14db0f,subnet-077e9f5dc80174528"
 ]

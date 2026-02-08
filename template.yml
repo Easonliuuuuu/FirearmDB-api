@@ -37,7 +37,7 @@ Parameters:
   VpcSubnetIds:
     Type: CommaDelimitedList
     Description: "Subnet IDs for the Lambda function"
-  StageName:
+  ApiStageName:
     Type: String
     Default: Prod
     Description: "The name of the API Gateway Stage"
@@ -50,7 +50,7 @@ Resources:
   ApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: !Ref StageName
+      StageName: !Ref ApiStageName
       MethodSettings: []
 
   # Usage plan for anonymous users (lower limits)
@@ -61,7 +61,7 @@ Resources:
       Description: "Usage plan for anonymous users with lower rate limits"
       ApiStages:
         - ApiId: !Ref ApiGateway
-          Stage: !Ref StageName
+          Stage: !Ref ApiStageName
           Throttle:
             "/api/v1/token/POST":
               BurstLimit: 5
@@ -83,7 +83,7 @@ Resources:
       Enabled: true
       StageKeys:
         - RestApiId: !Ref ApiGateway
-          StageName: !Ref StageName
+          StageName: !Ref ApiStageName
 
   # Usage plan for authenticated users (higher limits)
   AuthenticatedUsagePlan:
@@ -93,7 +93,7 @@ Resources:
       Description: "Usage plan for API key holders with higher rate limits"
       ApiStages:
         - ApiId: !Ref ApiGateway
-          Stage: !Ref StageName
+          Stage: !Ref ApiStageName
       Throttle:
         BurstLimit: 200
         RateLimit: 100
