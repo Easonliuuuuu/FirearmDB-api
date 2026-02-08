@@ -6,30 +6,31 @@ Description: >
   # Force update 2026-01-26 to refresh environment variables after secret rotation
 
 Parameters:
+  # Use secret names (not full ARNs) so references survive secret rotation; suffix in ARNs changes on rotation.
   DbHost:
     Type: String
     Description: "Database Host"
-    Default: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_SERVER}}"
+    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_SERVER}}"
   DbName:
     Type: String
     Description: "Database Name"
-    Default: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_NAME}}"
+    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_NAME}}"
   DbUser:
     Type: String
     Description: "Database User"
-    Default: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_USER}}"
+    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_USER}}"
   DbPort:
     Type: String
     Description: "Database Port"
-    Default: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/credentials-LmfgbP:SecretString:DB_PORT}}"
+    Default: "{{resolve:secretsmanager:prod/firearm-api/credentials:SecretString:DB_PORT}}"
   DbPassword:
     Type: String
     Description: "Database Password"
-    Default: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:rds!db-fa2781de-81a7-40ba-aaa8-703270306399-EardwP:SecretString:password}}"
+    Default: "{{resolve:secretsmanager:rds!db-fa2781de-81a7-40ba-aaa8-703270306399:SecretString:password}}"
   SecretKey:
     Type: String
     Description: "Application Secret Key"
-    Default: "{{resolve:secretsmanager:arn:aws:secretsmanager:ap-northeast-3:384648803631:secret:prod/firearm-api/secret-key-4HbG4r:SecretString:SECRET_KEY}}"
+    Default: "{{resolve:secretsmanager:prod/firearm-api/secret-key:SecretString:SECRET_KEY}}"
   VpcSecurityGroupIds:
     Type: CommaDelimitedList
     Description: "Security Group IDs for the Lambda function"
