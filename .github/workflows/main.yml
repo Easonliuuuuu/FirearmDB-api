@@ -51,6 +51,7 @@ jobs:
       uses: aws-actions/setup-sam@v2
 
     - name: Build and Deploy with SAM
+      id: deploy
       run: |
         # This command builds the Docker image and prepares the deployment artifacts
         sam build --use-container
@@ -60,3 +61,19 @@ jobs:
                    --image-repository ${{ steps.login-ecr.outputs.registry }}/firearm-api-repo \
                    --no-confirm-changeset \
                    --no-fail-on-empty-changeset
+
+    - name: Debug CloudFormation failure
+      if: failure() && steps.deploy.outcome == 'failure'
+      run: |
+        echo "=== Recent stack events (look for FAILED and StatusReason) ==="
+        aws cloudformation describe-stack-events \
+          --stack-name firearm-api-prod \
+          --region ap-northeast-3 \
+          --max-items 15 \
+          --query "StackEvents[].[Timestamp,LogicalResourceId,ResourceStatus,ResourceStatusReason]" \
+          --output table 2>/dev/null || true
+        echo "=== Latest change set (StatusReason may name the failing resource) ==="
+        CS=$(aws cloudformation list-change-sets --stack-name firearm-api-prod --region ap-northeast-3 --query "Summaries[0].ChangeSetId" --output text 2>/dev/null) || true
+        if [ -n "$CS" ] && [ "$CS" != "None" ]; then
+          aws cloudformation describe-change-set --change-set-name "$CS" --stack-name firearm-api-prod --region ap-northeast-3 --output json 2>/dev/null | head -80 || true
+        fi
