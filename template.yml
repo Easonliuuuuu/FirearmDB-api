@@ -6,15 +6,24 @@ Description: >
   # Force update 2026-01-26 to refresh environment variables after secret rotation
 
 Parameters:
-  DbCredentialsSecretArn:
+  DbHost:
     Type: String
-    Description: "ARN of the secret containing DB credentials (DB_SERVER, DB_NAME, DB_USER, DB_PORT)"
-  DbPasswordSecretArn:
+    Description: "Database Host"
+  DbName:
     Type: String
-    Description: "ARN of the secret containing the DB password"
-  AppKeySecretArn:
+    Description: "Database Name"
+  DbUser:
     Type: String
-    Description: "ARN of the secret containing the application SECRET_KEY"
+    Description: "Database User"
+  DbPort:
+    Type: String
+    Description: "Database Port"
+  DbPassword:
+    Type: String
+    Description: "Database Password"
+  SecretKey:
+    Type: String
+    Description: "Application Secret Key"
   VpcSecurityGroupIds:
     Type: CommaDelimitedList
     Description: "Security Group IDs for the Lambda function"
@@ -127,12 +136,12 @@ Resources:
 
       Environment:
         Variables:
-          DB_SERVER: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_SERVER}}"
-          DB_NAME: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_NAME}}"
-          DB_USER: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_USER}}"
-          DB_PORT: !Sub "{{resolve:secretsmanager:${DbCredentialsSecretArn}:SecretString:DB_PORT}}"
-          DB_PASSWORD: !Sub "{{resolve:secretsmanager:${DbPasswordSecretArn}:SecretString:password}}"
-          SECRET_KEY: !Sub "{{resolve:secretsmanager:${AppKeySecretArn}:SecretString:SECRET_KEY}}"
+          DB_SERVER: !Ref DbHost
+          DB_NAME: !Ref DbName
+          DB_USER: !Ref DbUser
+          DB_PORT: !Ref DbPort
+          DB_PASSWORD: !Ref DbPassword
+          SECRET_KEY: !Ref SecretKey
     Metadata:
       DockerTag: dev
       DockerContext: ./
